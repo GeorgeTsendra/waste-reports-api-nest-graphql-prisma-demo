@@ -1,100 +1,132 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+Waste Reports API - Playground
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Sandbox project to explore NestJS, GraphQL (code-first), Prisma, PostgreSQL, Docker, and pnpm.
+This is not intended for production use.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Tech Stack:
+• NestJS (REST + GraphQL, Apollo Server)
+• GraphQL (code-first, auto schema generation)
+• Prisma (ORM) + PostgreSQL
+• pnpm (package manager)
+• Docker / Docker Compose
 
-## Description
+Getting Started:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Prerequisites:
+• Node.js 18+ (if running without Docker)
+• Docker & Docker Compose
+• pnpm (npm i -g pnpm)
 
-## Project setup
+Quick Start (Docker):
+docker compose down -v
+docker compose build –no-cache
+docker compose up
 
-```bash
-$ pnpm install
-```
+API will be available:
+• REST: http://localhost:3000/ (Hello World)
+• GraphQL: http://localhost:3000/graphql (Apollo Sandbox)
 
-## Compile and run the project
+If you see “Cannot GET /”, make sure that AppController is registered and in main.ts there is app.listen(3000, '0.0.0.0').
 
-```bash
-# development
-$ pnpm run start
+Environment:
+In Docker, DATABASE_URL points to the postgres service.
 
-# watch mode
-$ pnpm run start:dev
+Example .env for locale:
+DATABASE_URL=postgresql://myuser:mypassword@localhost:5432/mydb
 
-# production mode
-$ pnpm run start:prod
-```
+In docker-compose.yml:
+DATABASE_URL: postgresql://myuser:mypassword@postgres:5432/mydb
 
-## Run tests
+Prisma:
+pnpm prisma generate — client generation
+pnpm prisma migrate dev -n init — migration (local)
+docker compose exec api pnpm prisma migrate deploy — migration to Docker
 
-```bash
-# unit tests
-$ pnpm run test
+GraphQL:
+The project uses a code-first approach, the schema is generated in schema.gql
 
-# e2e tests
-$ pnpm run test:e2e
+Example query:
+query Reports {
+reports {
+edges {
+node {
+id
+title
+status
+createdBy { email }
+}
+cursor
+}
+pageInfo { endCursor hasNextPage }
+}
+}
 
-# test coverage
-$ pnpm run test:cov
-```
+Example mutation (mock auth):
+mutation CreateReport($input: CreateReportInput!) {
+createReport(input: $input) {
+id
+title
+status
+createdBy { email }
+}
+}
 
-## Deployment
+Variables:
+{
+“input”: { “type”: “BIN_OVERFLOW”, “title”: “Overflow near #42”, “lat”: 50.45, “lng”: 30.52 }
+}
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Auth header:
+Authorization: Bearer dev-token
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Project Structure:
+src/
+app.module.ts
+app.controller.ts
+app.service.ts
+main.ts
+prisma/
+prisma.service.ts
+user/
+user.module.ts
+user.resolver.ts
+user.service.ts
+entities/user.entity.ts
+report/
+report.module.ts
+report.resolver.ts
+report.service.ts
+dto/
+create-report.input.ts
+update-status.input.ts
+entities/report.entity.ts
+prisma/schema.prisma
+docker-compose.yml
+Dockerfile
 
-```bash
-$ pnpm install -g mau
-$ mau deploy
-```
+Docker:
+api depends on postgres by healthcheck
+api runs: pnpm prisma generate && pnpm prisma migrate deploy && node dist/main.js
+the application listens on 0.0.0.0:3000
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Useful commands:
+docker compose logs -f api
+docker compose logs -f postgres
+docker compose exec api sh
 
-## Resources
+Scripts:
+“build”: “nest build”
+“start:dev”: “nest start –watch”
+“start:prod”: “node dist/main.js”
+“prisma:generate”: “prisma generate”
+“prisma:migrate”: “prisma migrate dev”
 
-Check out a few resources that may come in handy when working with NestJS:
+Notes & Next Steps:
+• Replace mock auth with JWT
+• Add validation (class-validator, ValidationPipe)
+• DataLoader for optimized links
+• E2E tests (graphql-request)
+• Subscriptions for live updates
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-# waste-reports-api-nest-graphql-prisma-demo
+Disclaimer:
+This is a learning project for experimenting and learning technologies.
